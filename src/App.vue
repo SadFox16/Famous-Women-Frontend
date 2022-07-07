@@ -35,13 +35,13 @@
 </div>
 
 <!--Главная-->
-<div id="main" v-if="flags.show_main" class="main">
+<div v-if="flags.show_main" class="categories_list">
+  <header>
+    Тут будет меню категорий 
+  </header>
+</div>
 
-  <div class="categories">
-    <li v-for="value in categories" v-bind:key="value" class="allposts1">
-      {{ value}}
-    </li>
-  </div>
+<div id="main" v-if="flags.show_main" class="main">
 
   <div class="title">
     <li v-for="value in allposts" v-bind:key="value" class="allposts1">
@@ -54,7 +54,9 @@
     </li>
   </div>
 
-  <button @click="logout()" class="register_click">Выход</button>
+</div>
+<div v-if="flags.show_main">
+ <button @click="logout()" class="back">Выход</button>
 </div>
 
 </template>
@@ -84,7 +86,7 @@ export default {
       token: '',
       err: '',
       allposts: { },
-      categories: { },
+      categories_menu: { },
     }
   },
 
@@ -116,12 +118,10 @@ export default {
           this.flags.show_main = true
           this.flags.show_register = false
           this.get_all()
-          this.get_categoris()
+          this.get_categories()
         }).catch(error => {
-          console.log("Error login")
-          console.log(error)
           this.err = ''
-          this.err = 'Данные указаны неверно, авторизация невозможна!'
+          this.err = error.response.data.detail
           this.flags.show_login = true
           this.flags.show_main = false
           this.flags.show_register = false
@@ -156,9 +156,8 @@ export default {
           console.log("Error reg")
           console.log(error)
           this.flags.show_register = true
-          this.reg_error = error
           this.err = ''
-          this.err = 'Неверно указаны данные, регистрация невозможна!'
+          this.err = error.response.data.detail
         })
     },
 
@@ -200,10 +199,8 @@ export default {
             }
           })
           .catch(error => {
-            console.log("Error auth")
-            console.log(error)
             this.err = ''
-            this.err = 'Вы не авторизованы!'
+          this.err = error.response.data.detail
           })
       } else {
         this.logout()
@@ -236,24 +233,22 @@ export default {
         this.allposts = response.data
       })
       .catch(error => {
-          console.log("Error getAll")
-          console.log(error)
           this.err = ''
-          this.err = 'Невозможно получить записи!'
+         this.err = error.response.data.detail
         })
     },
 
-    get_categoris(){
+    get_categories(){
       this.token = JSON.parse(localStorage.getItem('access_token'))
       axios
       .get(process.env.VUE_APP_APIURL+'user/category/', {},
       { headers: { "Authorization": 'Bearer ' + this.token }})
       .then(response => {
-        this.categories = response.data
+        this.categories_menu = response.data
       })
       .catch(error => {
-          console.log("Error getCategories")
-          console.log(error)
+          this.err = ''
+          this.err = error.response.data.detail
         })
     },
 
@@ -270,6 +265,10 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+
+body{
+  background-color: floralwhite;
 }
 
 div.main{
@@ -289,6 +288,7 @@ li.allposts2{
   width: 1500px;
   scroll-behavior: smooth;
   overflow: auto;
+  text-align: center;
 }
 
 li.allposts1{
@@ -301,9 +301,16 @@ li.allposts1{
   margin-bottom: 10px;
   height: 300px;
   width: 350px;
-  scroll-behavior: smooth;
-  overflow: auto;
+  text-align: center;
 }
 
+button.back{
+  width: 100%;
+}
+
+div.categories_list{
+  padding-bottom: 40px;
+  text-align: center;
+}
 
 </style>
