@@ -36,14 +36,24 @@
 
 <!--Главная-->
 <div id="main" v-if="flags.show_main" class="main">
-<header>
-    <li v-for="value in categories" v-bind:key="value" class="categories">
-    {{ value }}
-  </li>
-</header>
-  <li v-for="value in allposts" v-bind:key="value" class="allposts">
-    {{ value }}
-  </li>
+
+  <div class="categories">
+    <li v-for="value in categories" v-bind:key="value" class="allposts1">
+      {{ value}}
+    </li>
+  </div>
+
+  <div class="title">
+    <li v-for="value in allposts" v-bind:key="value" class="allposts1">
+      {{ value.title }}
+    </li>
+  </div>
+  <div class="content">
+    <li v-for="value in allposts" v-bind:key="value" class="allposts2">
+      {{ value.content }}
+    </li>
+  </div>
+
   <button @click="logout()" class="register_click">Выход</button>
 </div>
 
@@ -106,6 +116,7 @@ export default {
           this.flags.show_main = true
           this.flags.show_register = false
           this.get_all()
+          this.get_categoris()
         }).catch(error => {
           console.log("Error login")
           console.log(error)
@@ -115,10 +126,6 @@ export default {
           this.flags.show_main = false
           this.flags.show_register = false
         })
-    },
-
-    is_show_login() {
-      return this.flags.show_login == true
     },
 
     //Регистрация
@@ -236,6 +243,20 @@ export default {
         })
     },
 
+    get_categoris(){
+      this.token = JSON.parse(localStorage.getItem('access_token'))
+      axios
+      .get(process.env.VUE_APP_APIURL+'user/category/', {},
+      { headers: { "Authorization": 'Bearer ' + this.token }})
+      .then(response => {
+        this.categories = response.data
+      })
+      .catch(error => {
+          console.log("Error getCategories")
+          console.log(error)
+        })
+    },
+
   }
 }
 </script>
@@ -250,5 +271,39 @@ export default {
   color: #2c3e50;
   margin-top: 60px;
 }
+
+div.main{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+li.allposts2{
+  line-height: 1.5;
+  margin-bottom: 100px;
+  display: grid;
+  grid-template-columns: auto solid black;
+  grid-template-rows: auto solid black;
+  border: 1px solid black;
+  margin-bottom: 10px;
+  height: 300px;
+  width: 1500px;
+  scroll-behavior: smooth;
+  overflow: auto;
+}
+
+li.allposts1{
+  line-height: 5;
+  margin-bottom: 10px;
+  display: grid;
+  grid-template-columns: auto solid black;
+  grid-template-rows: auto solid black;
+  border: 1px solid black;
+  margin-bottom: 10px;
+  height: 300px;
+  width: 350px;
+  scroll-behavior: smooth;
+  overflow: auto;
+}
+
 
 </style>
